@@ -1,0 +1,30 @@
+name: trading-bot
+
+on:
+  schedule:
+    - cron: "3 * * * *"
+  workflow_dispatch:
+
+concurrency:
+  group: trading-bot
+  cancel-in-progress: false
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - run: pip install -r requirements_cloud.txt
+      - run: python mt5_cloud_bot.py --once
+        env:
+          METAAPI_TOKEN: ${{ secrets.METAAPI_TOKEN }}
+          METAAPI_ACCOUNT_ID: ${{ secrets.METAAPI_ACCOUNT_ID }}
+          SYMBOLS: ${{ vars.SYMBOLS }}
+          LIVE_TRADING: ${{ vars.LIVE_TRADING }}
+          ALLOW_REAL: ${{ vars.ALLOW_REAL }}
+          RISK_PERCENT: ${{ vars.RISK_PERCENT }}
+          DIRECTION: ${{ vars.DIRECTION }}
